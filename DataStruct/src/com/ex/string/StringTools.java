@@ -50,7 +50,9 @@ public class StringTools {
 		}
 		return nextval;
 	}
-	
+	/*
+	 * KMP算法
+	 */
 	public static int indexKMP(String s,String t){
 		int i=0,j=0;
 		int[] next=new int[t.length()];
