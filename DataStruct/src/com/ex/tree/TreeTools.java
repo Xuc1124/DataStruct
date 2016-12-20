@@ -213,19 +213,62 @@ public class TreeTools {
 	public static <T> void noRecPreOrderTravel(TreeNode<T> root){
 		Stack<TreeNode> stack=new Stack<TreeNode>();
 		TreeNode node=root;
+		if(node!=null){
+			stack.push(node);
+			while(!stack.isEmpty()){
+				node=stack.pop();
+				visitNode(node);
+				if(node.rightChild!=null){
+					stack.push(node.rightChild);
+				}
+				if(node.leftChild!=null){
+					stack.push(node.leftChild);
+				}
+			}
+		}
+	}
+	
+	/*
+	 * 非递归后续遍历
+	 */
+	public static <T> void noRecBackOrderTravel(TreeNode<T> root){
+		Stack<TreeNode> stack=new Stack<TreeNode>();
+		Stack<TreeNode> temp=new Stack<TreeNode>();
+		TreeNode node=root;
+		if(node!=null){
+			stack.push(node);
+			while(!stack.isEmpty()){
+				node=stack.pop();
+				//visitNode(node);
+				temp.push(node);
+				if(node.leftChild!=null){
+					stack.push(node.leftChild);
+				}
+				if(node.rightChild!=null){
+					stack.push(node.rightChild);
+				}
+			}
+		}
+		while(!temp.isEmpty()){
+			visitNode(temp.pop());
+		}
+	}
+	
+	/*
+	 * 非递归中序遍历
+	 */
+	public static <T> void noRecMidOrderTravel(TreeNode<T> root){
+		Stack<TreeNode> stack=new Stack<TreeNode>();
+		TreeNode node=root;
 		while(node!=null||!stack.isEmpty()){
 			while(node!=null){
-				visitNode(node);
 				stack.push(node);
 				node=node.leftChild;
 			}
-			while(node==null){
-				if(!stack.isEmpty()){
-					node=stack.pop();
-					node=node.rightChild;
-				}else{
-					break;
-				}
+			if(!stack.isEmpty()){
+				node=stack.pop();
+				visitNode(node);
+				node=node.rightChild;
 			}
 		}
 	}
