@@ -1,6 +1,6 @@
 package com.ex.graph;
 
-public  class MGraph {
+public class MGraph {
 	String[] vexs;
 	int[][] arc;
 	int vertexNum, edgeNum;
@@ -9,8 +9,8 @@ public  class MGraph {
 	}
 
 	public MGraph(int vertexNum, int edgeNum) {
-		this.vertexNum=vertexNum;
-		this.edgeNum=edgeNum;
+		this.vertexNum = vertexNum;
+		this.edgeNum = edgeNum;
 		this.vexs = new String[vertexNum];
 		this.arc = new int[vertexNum][vertexNum];
 		for (int i = 0; i < vertexNum; i++) {
