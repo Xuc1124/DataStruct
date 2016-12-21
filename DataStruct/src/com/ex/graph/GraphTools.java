@@ -262,10 +262,7 @@ public class GraphTools {
 		g.arc[7][6] = 19;
 		prime(g);
 		// BFSTraverse1(g);
-		/*
-		 * GraphAdjList graph=creatGraphAdjList();
-		 * GraphTools.BFSTraverse2(graph);
-		 */
+
 	}
 
 }
