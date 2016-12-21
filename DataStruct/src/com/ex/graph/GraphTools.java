@@ -221,7 +221,7 @@ public class GraphTools {
 
 	public static void main(String[] args) {
 		// MGraph g=creatMGraph();
-		MGraph g = new MGraph(9, 15);
+		/*MGraph g = new MGraph(9, 15);
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
 				g.arc[i][j] = 65535;
@@ -260,7 +260,7 @@ public class GraphTools {
 		g.arc[6][5] = 17;
 		g.arc[6][7] = 19;
 		g.arc[7][6] = 19;
-		prime(g);
+		prime(g);*/
 		// BFSTraverse1(g);
 
 	}
