@@ -3,6 +3,7 @@ package com.ex.graph;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
+import java.util.Stack;
 
 import com.ex.graph.GraphAdjList.EdgeNode;
 
@@ -183,15 +184,15 @@ public class GraphTools {
 	/*
 	 * 最小生成树，Prim算法,假设从0节点开始
 	 */
-	public static void prime(MGraph g) {
+	public static void miniSpanTreePrim(MGraph g) {
 
 		int[] lowcost = new int[g.vertexNum];
 		int[] adjvex = new int[g.vertexNum];
 		lowcost[0] = 0; // 下标为0的顶点已经加入生成树中
 		adjvex[0] = 0; // 初始化第一个顶点为0；
 		for (int i = 1; i < g.vertexNum; i++) {
-			lowcost[i] = g.arc[0][i];			//将v0顶点与之有边的权值存入数组
-			adjvex[i] = 0;						//初始化都为v0的下标
+			lowcost[i] = g.arc[0][i]; // 将v0顶点与之有边的权值存入数组
+			adjvex[i] = 0; // 初始化都为v0的下标
 		}
 		int min, j, k;
 		for (int i = 1; i < g.vertexNum; i++) {
@@ -219,9 +220,110 @@ public class GraphTools {
 		}
 	}
 
+	/*
+	 * 邻接矩阵转边集数组
+	 */
+	public static Edge[] mgraphToEdge(MGraph g) {
+		Edge[] edges = new Edge[g.edgeNum];
+		int k = 0;
+		for (int i = 0; i < g.vertexNum; i++) { // 把邻接矩阵值存到边集数组中
+			for (int j = i + 1; j < g.vertexNum; j++) {
+				if (g.arc[i][j] != 0 && g.arc[i][j] < 65535) {
+					edges[k++] = new Edge(i, j, g.arc[i][j]);
+				}
+			}
+		}
+		Edge temp;
+		for (int i = 0; i < edges.length; i++) { // 对边集数组排序
+			for (int j = i; j < edges.length; j++) {
+				if (edges[j].weight < edges[i].weight) {
+					temp = edges[i];
+					edges[i] = edges[j];
+					edges[j] = temp;
+				}
+			}
+		}
+		return edges;
+	}
+
+	/*
+	 * 最小生成树，Kruskal算法
+	 */
+	public static void miniSpanTreeKruskal(MGraph g) {
+		Edge[] edges = mgraphToEdge(g);
+		int[] parent = new int[g.vertexNum];
+		for (int i = 0; i < g.edgeNum; i++) {
+			int n = find(parent, edges[i].begin);
+			int m = find(parent, edges[i].end);
+			if (n != m) { // 若相等，则说明有环路
+				parent[n] = m;
+				System.out.println("(" + edges[i].begin + "," + edges[i].end + ") " + edges[i].weight);
+			}
+		}
+	}
+
+	public static int find(int[] parent, int f) {
+		while (parent[f] > 0) {
+			f = parent[f];
+		}
+		return f;
+	}
+
+	/*
+	 * 最短路径，Dijkstra算法，邻接矩阵
+	 */
+	public static void shortestPathDijkstra(MGraph g, int v0, int[] pathArc, int[] pathTable) {
+		int[] fin = new int[g.vertexNum];		//判断是否要求v0与其他节点的最短距离，1表示求过或不要
+		for (int v = 0; v < g.vertexNum; v++) {
+			fin[v] = 0;
+			pathTable[v] = g.arc[v0][v]; // 与v0节点有边的节点加上权值
+			pathArc[v] = 0; // 初始化路径数组
+		}
+		pathTable[v0] = 0; // v0到v0路径为0
+		fin[v0] = 1; // v0到v0不需要求路径
+		int k = 0;
+
+		for (int v = 1; v < g.vertexNum; v++) { // 主循环，每次求得v0到某个节点的最短距离
+			int min = 65535;
+			for (int w = 0; w < g.vertexNum; w++) {		//找出距离v0节点最近的节点，k为最近节点的下标
+				if (fin[w] == 0 && pathTable[w] < min) {
+					k = w;
+					min = pathTable[w];
+				}
+			}
+			fin[k] = 1;									//vk节点不需要在求最段路径了，已经是最短
+			for (int w = 0; w < g.vertexNum; w++) {
+				if (fin[w] == 0 && (min + g.arc[k][w] < pathTable[w])) {
+					pathTable[w] = min + g.arc[k][w];
+					pathArc[w] = k;						//v0到vw节点的前驱是vk节点，而到vk节点的前驱就是pathArc[k]=?值
+				}
+			}
+		}
+	}
+
+	/*
+	 * 获得从vk节点到vw节点的路径
+	 */
+	public static void getPathFromVkToVw(MGraph g,int k,int w){
+		int[] pathArc = new int[g.vertexNum];
+		int[] pathTable = new int[g.vertexNum];
+		shortestPathDijkstra(g, k, pathArc, pathTable);
+		Stack stack=new Stack();
+		int x=w;
+		while(pathArc[x]!=0){
+			stack.push(pathArc[x]);
+			x=pathArc[x];
+		}
+		System.out.print(k+"->");
+		while(!stack.isEmpty()){
+			System.out.print(stack.pop()+"->");
+		}
+		System.out.println(w);
+	}
+	
 	public static void main(String[] args) {
 		// MGraph g=creatMGraph();
-		/*MGraph g = new MGraph(9, 15);
+		MGraph g = new MGraph(9, 16);
 		for (int i = 0; i < 9; i++) {
 			for (int j = 0; j < 9; j++) {
 				g.arc[i][j] = 65535;
@@ -230,37 +332,70 @@ public class GraphTools {
 		for (int i = 0; i < 9; i++) {
 			g.arc[i][i] = 0;
 		}
-		g.arc[0][1] = 10;
-		g.arc[1][0] = 10;
-		g.arc[0][5] = 11;
-		g.arc[5][0] = 11;
-		g.arc[1][2] = 18;
-		g.arc[2][1] = 18;
-		g.arc[1][6] = 16;
-		g.arc[6][1] = 16;
-		g.arc[1][8] = 12;
-		g.arc[8][1] = 12;
-		g.arc[2][3] = 22;
-		g.arc[3][2] = 22;
-		g.arc[2][8] = 8;
-		g.arc[8][2] = 8;
-		g.arc[3][4] = 20;
-		g.arc[4][3] = 20;
-		g.arc[3][6] = 26;
-		g.arc[6][3] = 26;
-		g.arc[3][7] = 16;
-		g.arc[7][3] = 16;
-		g.arc[3][8] = 21;
-		g.arc[8][3] = 21;
-		g.arc[4][5] = 26;
-		g.arc[5][4] = 26;
-		g.arc[4][7] = 7;
-		g.arc[7][4] = 7;
-		g.arc[5][6] = 17;
-		g.arc[6][5] = 17;
-		g.arc[6][7] = 19;
-		g.arc[7][6] = 19;
-		prime(g);*/
+
+		g.arc[0][1] = 1;
+		g.arc[1][0] = 1;
+		g.arc[0][2] = 5;
+		g.arc[2][0] = 5;
+		g.arc[1][2] = 3;
+		g.arc[2][1] = 3;
+		g.arc[1][3] = 7;
+		g.arc[3][1] = 7;
+		g.arc[1][4] = 5;
+		g.arc[4][1] = 5;
+		g.arc[2][4] = 1;
+		g.arc[2][4] = 1;
+		g.arc[2][5] = 7;
+		g.arc[5][2] = 7;
+		g.arc[3][4] = 2;
+		g.arc[4][3] = 2;
+		g.arc[3][6] = 3;
+		g.arc[6][3] = 3;
+		g.arc[4][5] = 3;
+		g.arc[5][4] = 3;
+		g.arc[4][6] = 6;
+		g.arc[6][4] = 6;
+		g.arc[4][7] = 9;
+		g.arc[7][4] = 9;
+		g.arc[5][7] = 5;
+		g.arc[7][5] = 5;
+		g.arc[6][7] = 2;
+		g.arc[7][6] = 2;
+		g.arc[7][8] = 4;
+		g.arc[8][7] = 4;
+		getPathFromVkToVw(g,2,8);
+		/*int[] pathArc = new int[g.vertexNum];
+		int[] pathTable = new int[g.vertexNum];
+		shortestPathDijkstra(g, 0, pathArc, pathTable);
+		for (int i = 0; i < pathArc.length; i++) {
+			System.out.print(pathArc[i] + " ");
+		}
+		Stack stack=new Stack();
+		int k=8;
+		while(pathArc[k]!=0){
+			stack.push(pathArc[k]);
+			k=pathArc[k];
+		}
+		while(!stack.isEmpty()){
+			System.out.print(stack.pop()+"->");
+		}
+		System.out.println();
+		for (int i = 0; i < pathTable.length; i++) {
+			System.out.print(pathTable[i] + " ");
+		}*/
+		/*
+		 * g.arc[0][1] = 10; g.arc[1][0] = 10; g.arc[0][5] = 11; g.arc[5][0] =
+		 * 11; g.arc[1][2] = 18; g.arc[2][1] = 18; g.arc[1][6] = 16; g.arc[6][1]
+		 * = 16; g.arc[1][8] = 12; g.arc[8][1] = 12; g.arc[2][3] = 22;
+		 * g.arc[3][2] = 22; g.arc[2][8] = 8; g.arc[8][2] = 8; g.arc[3][4] = 20;
+		 * g.arc[4][3] = 20; g.arc[3][6] = 26; g.arc[6][3] = 26; g.arc[3][7] =
+		 * 16; g.arc[7][3] = 16; g.arc[3][8] = 21; g.arc[8][3] = 21; g.arc[4][5]
+		 * = 26; g.arc[5][4] = 26; g.arc[4][7] = 7; g.arc[7][4] = 7; g.arc[5][6]
+		 * = 17; g.arc[6][5] = 17; g.arc[6][7] = 19; g.arc[7][6] = 19;
+		 */
+		// miniSpanTreeKruskal(g);
+		// Edge[] edges=mgraphToEdge(g);
+		// miniSpanTreePrim(g);
 		// BFSTraverse1(g);
 
 	}
