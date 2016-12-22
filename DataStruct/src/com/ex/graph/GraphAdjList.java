@@ -29,7 +29,7 @@ public class GraphAdjList {
 	public static class VertexNode {
 		String data = null; // 顶点域，存储顶点信息
 		EdgeNode firstEdge = null;// 边表头指针
-
+		int in;						//拓扑排序时用到表示该节点的入度
 		public VertexNode(String data) {
 			this.data = data;
 		}

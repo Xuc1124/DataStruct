@@ -8,11 +8,11 @@ import java.util.Stack;
 import com.ex.graph.GraphAdjList.EdgeNode;
 
 /*
- * 图遍历工具类
+ * 图的相关算法
  */
 public class GraphTools {
 
-	private static boolean[] visited;
+	private static boolean[] visited;//遍历时用到，判断是否访问过
 
 	/*
 	 * 生成邻接矩阵图
@@ -302,9 +302,9 @@ public class GraphTools {
 	}
 
 	/*
-	 * 获得从vk节点到vw节点的路径
+	 * 获得从vk节点到vw节点的路径，Dijkstra算法
 	 */
-	public static void getPathFromVkToVw(MGraph g,int k,int w){
+	public static void getPathByDijkstra(MGraph g,int k,int w){
 		int[] pathArc = new int[g.vertexNum];
 		int[] pathTable = new int[g.vertexNum];
 		shortestPathDijkstra(g, k, pathArc, pathTable);
@@ -318,86 +318,83 @@ public class GraphTools {
 		while(!stack.isEmpty()){
 			System.out.print(stack.pop()+"->");
 		}
-		System.out.println(w);
+		System.out.println(w+"  总权值为："+pathTable[w]);
 	}
 	
-	public static void main(String[] args) {
-		// MGraph g=creatMGraph();
-		MGraph g = new MGraph(9, 16);
-		for (int i = 0; i < 9; i++) {
-			for (int j = 0; j < 9; j++) {
-				g.arc[i][j] = 65535;
+	/*
+	 * 最短路径，Floyd算法，邻接矩阵
+	 */
+	public static void shortestPathFloyd(MGraph g, int[][] pathArc, int[][] pathTable){
+		//初始化二维数组
+		for(int i=0;i<g.vertexNum;i++){
+			for(int j=0;j<g.vertexNum;j++){
+				pathTable[i][j]=g.arc[i][j];
+				pathArc[i][j]=j;
 			}
 		}
-		for (int i = 0; i < 9; i++) {
-			g.arc[i][i] = 0;
+		for(int k=0;k<g.vertexNum;k++){
+			for(int v=0;v<g.vertexNum;v++){
+				for(int w=0;w<g.vertexNum;w++){
+					if(pathTable[v][w]>pathTable[v][k]+pathTable[k][w]){
+						pathTable[v][w]=pathTable[v][k]+pathTable[k][w];
+						pathArc[v][w]=pathArc[v][k];
+					}
+				}
+			}
 		}
-
-		g.arc[0][1] = 1;
-		g.arc[1][0] = 1;
-		g.arc[0][2] = 5;
-		g.arc[2][0] = 5;
-		g.arc[1][2] = 3;
-		g.arc[2][1] = 3;
-		g.arc[1][3] = 7;
-		g.arc[3][1] = 7;
-		g.arc[1][4] = 5;
-		g.arc[4][1] = 5;
-		g.arc[2][4] = 1;
-		g.arc[2][4] = 1;
-		g.arc[2][5] = 7;
-		g.arc[5][2] = 7;
-		g.arc[3][4] = 2;
-		g.arc[4][3] = 2;
-		g.arc[3][6] = 3;
-		g.arc[6][3] = 3;
-		g.arc[4][5] = 3;
-		g.arc[5][4] = 3;
-		g.arc[4][6] = 6;
-		g.arc[6][4] = 6;
-		g.arc[4][7] = 9;
-		g.arc[7][4] = 9;
-		g.arc[5][7] = 5;
-		g.arc[7][5] = 5;
-		g.arc[6][7] = 2;
-		g.arc[7][6] = 2;
-		g.arc[7][8] = 4;
-		g.arc[8][7] = 4;
-		getPathFromVkToVw(g,2,8);
-		/*int[] pathArc = new int[g.vertexNum];
-		int[] pathTable = new int[g.vertexNum];
-		shortestPathDijkstra(g, 0, pathArc, pathTable);
-		for (int i = 0; i < pathArc.length; i++) {
-			System.out.print(pathArc[i] + " ");
+	}
+	/*
+	 * 获得从vk节点到vw节点的路径,Floyd算法
+	 */
+	public static void getPathByFloyd(MGraph g,int k,int w){
+		int[][] pathArc=new int[g.vertexNum][g.vertexNum];
+		int[][] pathTable=new int[g.vertexNum][g.vertexNum];
+		shortestPathFloyd(g,pathArc,pathTable);
+		int x=pathArc[k][w];
+		System.out.print(k+"->");
+		while(x!=w){
+			System.out.print(x+"->");
+			x=pathArc[x][w];
 		}
+		System.out.println(w+"  总权值为："+pathTable[k][w]);
+	}
+	
+	/*
+	 * 拓扑排序(判断图中是否有回路)，邻接表
+	 */
+	public static boolean toplogiclSort(GraphAdjList gl){
 		Stack stack=new Stack();
-		int k=8;
-		while(pathArc[k]!=0){
-			stack.push(pathArc[k]);
-			k=pathArc[k];
+		String res="";
+		int count=0;				
+		for(int i=0;i<gl.vertexNum;i++){
+			if(gl.adjList[i].in==0){
+				stack.push(i);
+			}
 		}
 		while(!stack.isEmpty()){
-			System.out.print(stack.pop()+"->");
+			int gettop=(int)stack.pop();
+			//System.out.print(gl.adjList[gettop].data+"->");//只有存在拓扑排序的时候才输出，所以储存在字符串里
+			res=res+gl.adjList[gettop].data+"->";
+			count++;
+			GraphAdjList.EdgeNode e=gl.adjList[gettop].firstEdge;
+			while(e!=null){
+				int k=e.adjvex;
+				gl.adjList[k].in=gl.adjList[k].in-1;
+				if(gl.adjList[k].in==0){
+					stack.push(k);
+				}
+				e=e.next;
+			}
 		}
-		System.out.println();
-		for (int i = 0; i < pathTable.length; i++) {
-			System.out.print(pathTable[i] + " ");
-		}*/
-		/*
-		 * g.arc[0][1] = 10; g.arc[1][0] = 10; g.arc[0][5] = 11; g.arc[5][0] =
-		 * 11; g.arc[1][2] = 18; g.arc[2][1] = 18; g.arc[1][6] = 16; g.arc[6][1]
-		 * = 16; g.arc[1][8] = 12; g.arc[8][1] = 12; g.arc[2][3] = 22;
-		 * g.arc[3][2] = 22; g.arc[2][8] = 8; g.arc[8][2] = 8; g.arc[3][4] = 20;
-		 * g.arc[4][3] = 20; g.arc[3][6] = 26; g.arc[6][3] = 26; g.arc[3][7] =
-		 * 16; g.arc[7][3] = 16; g.arc[3][8] = 21; g.arc[8][3] = 21; g.arc[4][5]
-		 * = 26; g.arc[5][4] = 26; g.arc[4][7] = 7; g.arc[7][4] = 7; g.arc[5][6]
-		 * = 17; g.arc[6][5] = 17; g.arc[6][7] = 19; g.arc[7][6] = 19;
-		 */
-		// miniSpanTreeKruskal(g);
-		// Edge[] edges=mgraphToEdge(g);
-		// miniSpanTreePrim(g);
-		// BFSTraverse1(g);
-
+		if(count<gl.vertexNum){
+			return false;
+		}else{
+			System.out.println(res);
+			return true;
+		}
 	}
+	
+	
+	
 
 }

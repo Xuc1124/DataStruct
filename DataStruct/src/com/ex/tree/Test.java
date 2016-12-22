@@ -37,9 +37,9 @@ public class Test {
 		mid.add(3);
 		TreeNode t=TreeTools.getTreeFromBackAndMid(pre, mid);
 		System.out.println("\nback:");
-		TreeTools.backOrderTravel(t);
+		TreeTools.noRecBackOrderTravel(t);
 		System.out.println("\nmid:");
-		TreeTools.midOrderTravel(t);
+		TreeTools.noRecMidOrderTravel(t);
 		System.out.println("\npre:");
 		TreeTools.noRecPreOrderTravel(t);
 		
