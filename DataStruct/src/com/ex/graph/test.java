@@ -85,22 +85,59 @@ public class test {
 		// Edge[] edges=mgraphToEdge(g);
 		// miniSpanTreePrim(g);
 		// BFSTraverse1(g);
-		GraphAdjList gl=GraphTools.creatGraphAdjList();
+		//GraphAdjList gl=GraphTools.creatGraphAdjList();
+		GraphAdjList gl=new GraphAdjList(10,13);
+		String[] strs={"v0","v1","v2","v3","v4","v5","v6","v7","v8","v9"};
+		for(int i=0;i<gl.vertexNum;i++){
+			gl.adjList[i].data=strs[i];
+		}
+		GraphAdjList.EdgeNode v00=new GraphAdjList.EdgeNode(2,4);
+		v00.next=new GraphAdjList.EdgeNode(1,3);
+		gl.adjList[0].firstEdge=v00;
+		
+		GraphAdjList.EdgeNode v10=new GraphAdjList.EdgeNode(4,6);
+		v10.next=new GraphAdjList.EdgeNode(3,5);
+		gl.adjList[1].firstEdge=v10;
+		
+		GraphAdjList.EdgeNode v20=new GraphAdjList.EdgeNode(5,7);
+		v20.next=new GraphAdjList.EdgeNode(3,8);
+		gl.adjList[2].firstEdge=v20;
+		
+		GraphAdjList.EdgeNode v30=new GraphAdjList.EdgeNode(4,3);
+		gl.adjList[3].firstEdge=v30;
+		
+		GraphAdjList.EdgeNode v40=new GraphAdjList.EdgeNode(7,4);
+		v40.next=new GraphAdjList.EdgeNode(6,9);
+		gl.adjList[4].firstEdge=v40;
+		
+		GraphAdjList.EdgeNode v50=new GraphAdjList.EdgeNode(7,6);
+		gl.adjList[5].firstEdge=v50;
+		
+		GraphAdjList.EdgeNode v60=new GraphAdjList.EdgeNode(9,2);
+		gl.adjList[6].firstEdge=v60;
+		
+		GraphAdjList.EdgeNode v70=new GraphAdjList.EdgeNode(8,5);
+		gl.adjList[7].firstEdge=v70;
+		
+		GraphAdjList.EdgeNode v80=new GraphAdjList.EdgeNode(9,3);
+		gl.adjList[8].firstEdge=v80;
+		
 		gl.adjList[0].in=0;
-		gl.adjList[1].in=0;
-		gl.adjList[2].in=2;
-		gl.adjList[3].in=0;
+		gl.adjList[1].in=1;
+		gl.adjList[2].in=1;
+		gl.adjList[3].in=2;
 		gl.adjList[4].in=2;
-		gl.adjList[5].in=3;
+		gl.adjList[5].in=1;
 		gl.adjList[6].in=1;
 		gl.adjList[7].in=2;
-		gl.adjList[8].in=2;
+		gl.adjList[8].in=1;
 		gl.adjList[9].in=2;
-		gl.adjList[10].in=1;
-		gl.adjList[11].in=2;
+		//gl.adjList[10].in=1;
+		/*gl.adjList[11].in=2;
 		gl.adjList[12].in=1;
-		gl.adjList[13].in=2;
-		boolean flag=GraphTools.toplogiclSort(gl);
-		System.out.println(flag);
+		gl.adjList[13].in=2;*/
+		//boolean flag=GraphTools.toplogiclSort(gl);
+		GraphTools.criticalPath(gl);
+		//System.out.println(flag);
 	}
 }

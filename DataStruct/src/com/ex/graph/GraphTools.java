@@ -14,6 +14,10 @@ public class GraphTools {
 
 	private static boolean[] visited;//遍历时用到，判断是否访问过
 
+	private static int[] etv;				//事件的最早发生时间，求关键路径用
+	private static int[] ltv;				//事件的最晚发生时间，求关键路径用
+	private static Stack stack2;			//用来存储拓扑序列的栈，求关键路径用
+
 	/*
 	 * 生成邻接矩阵图
 	 */
@@ -65,7 +69,7 @@ public class GraphTools {
 			graph.adjList[k].data = sc.next();
 			graph.adjList[k].firstEdge = null;
 		}
-		System.out.println("顶点设置完成！\n输入边信息：\n\n");
+		System.out.println("顶点设置完成！\n输入边信息：\n");
 		for (int k = 0; k < edgeNum; k++) {
 			System.out.println("输入第" + k + "条边上的顶点序号：");
 			int i = sc.nextInt();
@@ -394,7 +398,86 @@ public class GraphTools {
 		}
 	}
 	
+	/*
+	 * 拓扑排序改，邻接表
+	 */
+	public static boolean toplogiclSort2(GraphAdjList gl){
+		//初始化
+		stack2=new Stack();
+		etv=new int[gl.vertexNum];
+		ltv=new int[gl.vertexNum];
+		Stack stack=new Stack();
+		//String res="";
+		int count=0;				
+		for(int i=0;i<gl.vertexNum;i++){
+			if(gl.adjList[i].in==0){
+				stack.push(i);
+			}
+		}
+		for(int i=0;i<gl.vertexNum;i++){
+			etv[i]=0;
+		}
+
+		while(!stack.isEmpty()){
+			int gettop=(int)stack.pop();
+			//System.out.print(gl.adjList[gettop].data+"->");//只有存在拓扑排序的时候才输出，所以储存在字符串里
+			//res=res+gl.adjList[gettop].data+"->";
+			stack2.push(gettop);
+			count++;
+			GraphAdjList.EdgeNode e=gl.adjList[gettop].firstEdge;
+			while(e!=null){
+				int k=e.adjvex;
+				gl.adjList[k].in=gl.adjList[k].in-1;
+				if(gl.adjList[k].in==0){
+					stack.push(k);
+				}
+				if((etv[gettop]+e.weight)>etv[k]){
+					etv[k]=etv[gettop]+e.weight;
+				}
+				e=e.next;
+			}
+		}
+		if(count<gl.vertexNum){
+			return false;
+		}else{
+			return true;
+		}
+	}
 	
-	
+	/*
+	*求关键路径，输出各项关键活动
+	*/
+	public static void criticalPath(GraphAdjList gl){
+		GraphAdjList.EdgeNode e;
+		int gettop=0;
+		int k;
+		toplogiclSort2(gl);
+		for(int i=0;i<gl.vertexNum;i++){
+			ltv[i]=etv[gl.vertexNum-1];
+		}
+		while(!stack2.isEmpty()){
+			gettop=(int)stack2.pop();
+			e=gl.adjList[gettop].firstEdge;
+			while(e!=null){
+				k=e.adjvex;
+				if(ltv[k]-e.weight<ltv[gettop]){
+					ltv[gettop]=ltv[k]-e.weight;
+				}
+				e=e.next;
+			}
+		}
+		for(int i=0;i<gl.vertexNum;i++){
+			e=gl.adjList[i].firstEdge;
+			while(e!=null){
+				k=e.adjvex;
+				int ete=etv[i];
+				int lte=ltv[k]-e.weight;
+				if(ete==lte){
+					System.out.print("<"+gl.adjList[i].data+","+gl.adjList[k].data+"> "+e.weight+" ");
+				}
+				e=e.next;
+			}
+		}
+	}
 
 }
